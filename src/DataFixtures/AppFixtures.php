@@ -53,8 +53,8 @@ class AppFixtures extends Fixture
         $sejourparisEvent->setCurrency("Eur");
         $sejourparisEvent->setCategory("Touristique");
         $sejourparisEvent->setCreatorUser($afaf);
-        $sejourparisEvent->getParticipantUser($rayan);
-        $sejourparisEvent->getParticipantUser($afaf);
+        $sejourparisEvent->addParticipantUser($rayan);
+        $sejourparisEvent->addParticipantUser($afaf);
         $rayan->addWholepayEvent($sejourparisEvent);
         $afaf->addWholepayEvent($sejourparisEvent);
         $manager->persist($rayan);
@@ -132,7 +132,7 @@ class AppFixtures extends Fixture
         $conferenceEvent->setCurrency("Eur");
         $conferenceEvent->setCategory("Scientifique");
         $conferenceEvent->setCreatorUser($afaf);
-        $conferenceEvent->getParticipantUser($rayan);
+        $conferenceEvent->addParticipantUser($rayan);
         $manager->persist($conferenceEvent);
         $afaf->addWholepayEvent($conferenceEvent);
         $manager->persist($afaf);
@@ -165,7 +165,7 @@ class AppFixtures extends Fixture
         $Invitation->setStatus('status');
         //$Invitation->setUser($user);
         //$Invitation->addUser($user);
-        $Invitation->setWholepay($sejourparisEvent);
+        $Invitation->setWholepay($wholepayEvent);
         $manager->persist($Invitation);
 
         $manager->flush();

@@ -2,14 +2,37 @@
 
 namespace App\Entity;
 use ApiPlatform\Core\Annotation\ApiResource;
-use Symfony\Component\Serializer\Annotation\Ignore;
+use Symfony\Component\Serializer\Annotation\Groups;
 use App\Repository\AvatarRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 
-#[ApiResource()]
+#[ApiResource(
+    itemOperations: [
+        'get' => [
+            'normalization_context' => [
+                'groups' => ['read']
+            ]
+        ]
+        
+    ],
+    collectionOperations: [
+        'get' => [
+            'normalization_context' => [
+                'groups' => [ 'read:User:collection','read:Avatar:collection' ],
+            ],
+        ],
+        'post' => [
+            'denormalization_context' => [
+                'groups' => [ 'write:User:collection' ],
+            ],
+        ],
+    ],
+)]
+
+
 
 #[ORM\Entity(repositoryClass: AvatarRepository::class)]
 class Avatar
@@ -17,15 +40,19 @@ class Avatar
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]
+    #[Groups(
+        ['read','write:User:collection','read:Avatar:collection']
+    )]
     private $id;
 
     #[ORM\Column(type: 'string', length: 255)]
+    #[Groups(
+        ['read', 'read:Avatar:collection']
+    )]
     private $image;
 
     #[ORM\OneToMany(mappedBy: 'avatar', targetEntity: User::class)]
 
-
-    #[Ignore]
     private $users;
 
     public function __construct()

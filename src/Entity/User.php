@@ -7,7 +7,29 @@ use App\Repository\UserRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
-#[ApiResource()]
+use Symfony\Component\Serializer\Annotation\Groups;
+#[ApiResource(
+    itemOperations: [
+        'get' => [
+            'normalization_context' => [
+                'groups' => ['read:Users:items']
+            ]
+        ]
+            ],
+    collectionOperations: [
+            'get' => [
+                'normalization_context' => [
+                    'groups' => [ 'read:User:collection' ],
+                ],
+            ],
+            'post' => [
+                'denormalization_context' => [
+                    'groups' => [ 'write:User:collection' ],
+                ],
+            ],
+        ],
+    )]
+
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 class User
 {
@@ -17,30 +39,50 @@ class User
     private $id;
 
     #[ORM\Column(type: 'string', length: 50)]
+    #[Groups(
+        ['read','read:User:collection','write:User:collection','read:Users:items']
+    )]
     private $name;
 
     #[ORM\Column(type: 'string', length: 50)]
+    #[Groups(
+        ['read','read:User:collection','write:User:collection','read:Users:items']
+    )]
     private $firstname;
 
     #[ORM\Column(type: 'string', length: 255)]
+    #[Groups(
+        ['read','write:User:collection','read:Users:items']
+    )]
     private $password;
 
     #[ORM\Column(type: 'string', length: 100)]
+    #[Groups(
+        ['read','write:User:collection','read:Users:items']
+    )]
     private $email;
 
     #[ORM\ManyToOne(targetEntity: Avatar::class, inversedBy: 'users')]
     #[ORM\JoinColumn(nullable: false)]
+    #[Groups(
+        ['write:User:collection']
+    )]
     private $avatar;
 
-    #[ORM\OneToMany(mappedBy: 'creator_user', targetEntity: WholepayEvent::class)]
+    #[ORM\OneToMany(mappedBy: 'creator_user', targetEntity: 
+    WholepayEvent::class)]
+    #[Groups(
+        ['read']//Ajouter 14 juin par afaf
+    )]
     private $wholepayEvents;
 
     #[ORM\OneToMany(mappedBy: 'paid_by_user', targetEntity: Expense::class)]
-    #[Ignore]
+    //#[Ignore]
+     
     private $expenses;
 
     #[ORM\OneToMany(mappedBy: 'participant_user', targetEntity: Advance::class)]
-    #[Ignore]
+   //#[Ignore]
     private $participant_user_advance;
 
     public function __construct()
@@ -178,7 +220,7 @@ class User
     /**
      * @return Collection<int, Advance>
      */
-    #[Ignore]
+    //#[Ignore]
     public function getParticipantUserAdvance(): Collection
     {
         return $this->participant_user_advance;

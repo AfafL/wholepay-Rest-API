@@ -5,73 +5,45 @@ use ApiPlatform\Core\Annotation\ApiResource;
 use App\Repository\WholepayEventRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
-use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Serializer\Annotation\Ignore;
 
 use Doctrine\ORM\Mapping as ORM;
-use Doctrine\ORM\Mapping\Id;
-
-#[ApiResource(
-    itemOperations: [
-        'get' => [
-            'normalization_context' => [
-                'groups' => ['read']
-            ]
-        ]
-    ],
-    collectionOperations: [
-            'get' => [
-                'normalization_context' => [
-                    'groups' => [ 'read:WholepayEvent:collection' ],
-                ],
-            ],
-        ],
-    )]
-
-
+#[ApiResource()]
 #[ORM\Entity(repositoryClass: WholepayEventRepository::class)]
 class WholepayEvent
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]
-  
     private $id;
 
     #[ORM\Column(type: 'string', length: 100)]
-    #[Groups(
-        ['read','read:WholepayEvent:collection']
-    )]
     private $title;
 
     #[ORM\Column(type: 'string', length: 100)]
     private $description;
 
     #[ORM\Column(type: 'string', length: 50)]
-    #[Groups(
-        ['read']
-    )]
     private $currency;
 
     #[ORM\Column(type: 'string', length: 100)]
-    #[Groups(
-        ['read']
-    )]
     private $category;
 
     #[ORM\ManyToMany(targetEntity: User::class)]
-  
+    #[Ignore]
     private $participant_user;
 
     #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'wholepayEvents')]
     #[ORM\JoinColumn(nullable: false)]
+    #[Ignore]
     private $creator_user;
 
     #[ORM\OneToMany(mappedBy: 'wholepay', targetEntity: Expense::class)]
-
+    #[Ignore]
     private $wholepayExpense;
 
     #[ORM\OneToMany(mappedBy: 'wholepay', targetEntity: Invitation::class)]
-
+    #[Ignore]
     private $invitations;
 
     public function __construct()
@@ -134,36 +106,22 @@ class WholepayEvent
         return $this;
     }
 
-
- #[Groups(
-        ['read']
-    )]
-public function getParticipantNamesIDs():array{
-$list=[];
-foreach($this->participant_user as $value){
-    
-$list[]=['id'=> $value->getId(),'name'=>$value->getFirstName().' '.$value->getName()];
-}
-    return $list;
-}
-
     /**
      * @return Collection<int, user>
      */
-
     public function getParticipantUser(): Collection
     {
         return $this->participant_user;
     }
 
-    /*public function addParticipantUser(User $participantUser): self
+    public function addParticipantUser(User $participantUser): self
     {
         if (!$this->participant_user->contains($participantUser)) {
             $this->participant_user[] = $participantUser;
         }
 
         return $this;
-    }*/
+    }
 
     public function removeParticipantUser(User $participantUser): self
     {
